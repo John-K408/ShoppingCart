@@ -6,6 +6,7 @@
         <entry key="app/src/main/res/layout/activity_add_shopping.xml" value="0.15520833333333334" />
         <entry key="app/src/main/res/layout/activity_group_details.xml" value="0.15520833333333334" />
         <entry key="app/src/main/res/layout/activity_groups.xml" value="0.15520833333333334" />
+        <entry key="app/src/main/res/layout/group_row.xml" value="0.1" />
       </map>
     </option>
   </component>
