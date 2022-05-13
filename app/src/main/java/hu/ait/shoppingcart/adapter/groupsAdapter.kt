@@ -1,27 +1,23 @@
 package hu.ait.shoppingcart.adapter
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import hu.ait.shoppingcart.GroupDetailsActivity
+import hu.ait.shoppingcart.GroupsActivity
 import hu.ait.shoppingcart.data.Group
 import hu.ait.shoppingcart.databinding.GroupRowBinding
 
-class groupsAdapter: RecyclerView.Adapter<groupsAdapter.ViewHolder> {
+class groupsAdapter(var context: Context, uid: String) :
+    RecyclerView.Adapter<groupsAdapter.ViewHolder>() {
 
-    var context: Context
     var  groupList = mutableListOf<Group>()
     var  groupKeys = mutableListOf<String>()
 
-    lateinit var currentUid: String
-
-    constructor(context: Context, uid: String) : super() {
-        this.context = context
-        this.currentUid = uid
-    }
-
-
+     var currentUid: String = uid
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -42,8 +38,15 @@ class groupsAdapter: RecyclerView.Adapter<groupsAdapter.ViewHolder> {
 
             }
         }
+
         holder.btnLeave.setOnClickListener {
             removeGroupFromList(position)
+        }
+        holder.layoutContainer.setOnClickListener{
+            val intent = Intent()
+            intent.setClass((context as GroupsActivity),GroupDetailsActivity::class.java)
+            intent.putExtra(GroupDetailsActivity.DOCUMENT_NAME,groupKeys[position])
+            (context as GroupDetailsActivity).startActivity(intent)
         }
     }
 
@@ -57,11 +60,26 @@ class groupsAdapter: RecyclerView.Adapter<groupsAdapter.ViewHolder> {
        return groupList.size
     }
 
+    fun addGroup(group:Group,key:String){
+        groupList.add(group)
+        groupKeys.add(key)
+        notifyItemInserted(groupList.lastIndex)
+    }
+
+    fun removePostByKey(id: String) {
+        val index = groupKeys.indexOf(id)
+        if(index != -1){
+            groupKeys.removeAt(index)
+            groupList.removeAt(index)
+            notifyItemRemoved(index)
+        }
+    }
 
 
     inner class ViewHolder(binding: GroupRowBinding) : RecyclerView.ViewHolder(binding.root){
         var tvGroupName = binding.tvGroupName
         var btnDelete = binding.btnDelete
         var btnLeave = binding.btnLeave
+        var layoutContainer = binding.layoutGroup
     }
 }
