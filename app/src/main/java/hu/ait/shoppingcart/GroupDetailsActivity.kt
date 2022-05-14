@@ -3,6 +3,7 @@ package hu.ait.shoppingcart
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import hu.ait.shoppingcart.data.Group
 import hu.ait.shoppingcart.data.Post
@@ -10,6 +11,11 @@ import hu.ait.shoppingcart.databinding.ActivityGroupDetailsBinding
 import hu.ait.shoppingcart.databinding.ActivityGroupsBinding
 
 class GroupDetailsActivity : AppCompatActivity() {
+    /**
+     * Posts and keys are retrieved into postsList and postsKey.
+     * Use that for making adapter.
+     * Check addPost method on hints on adding/creating a new post.
+     **/
     private lateinit var  binding: ActivityGroupDetailsBinding
     companion object{
         var SUB_COLLECTION = "posts"
@@ -31,6 +37,8 @@ class GroupDetailsActivity : AppCompatActivity() {
 
         initKeyAndPostList()
         initFirebaseQuery()
+        addPost()
+
     }
 
 
@@ -83,5 +91,28 @@ class GroupDetailsActivity : AppCompatActivity() {
         var index = postsKey.indexOf(key)
         postsList.removeAt(index)
         postsKey.removeAt(index)
+    }
+
+    private fun addPost(){
+        val newPost = Post()
+        val postsCollection = FirebaseFirestore.getInstance().collection(GroupsActivity.GROUPS_COLLECTION).document(groupId)
+            .collection(SUB_COLLECTION)
+        postsCollection.add(newPost)
+            .addOnSuccessListener {
+                Toast.makeText(this@GroupDetailsActivity,
+                    "Post SAVED", Toast.LENGTH_LONG).show()
+                binding.tvSampleText.text = "There are " + postsList.size +  " posts at the moment"
+
+
+            }
+            .addOnFailureListener{
+                Toast.makeText(this@GroupDetailsActivity,
+                    "Error ${it.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        listenerReg?.remove()
     }
 }

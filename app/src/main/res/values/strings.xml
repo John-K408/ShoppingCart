@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">ShoppingCart</string>
+    <string name="ACTIVITY_NOT_CART_HANDLER">This activity does not implement CartHandler interface</string>
+    <string name="ADD_OR_JOIN_GROUP">ADD OR JOIN GROUP</string>
+    <string name="ADD_ITEM">ADD</string>
+    <string name="CANCEL">CANCEL</string>
+    <string name="EMPTY_FIELD_ERROR">This field cannot be empty</string>
 </resources>

@@ -31,6 +31,7 @@ class LoginActivity : AppCompatActivity() {
 
             // navigate to other Activity
             startActivity(Intent(this, GroupsActivity::class.java))
+            finish()
 
         }.addOnFailureListener{
             Toast.makeText(this@LoginActivity,

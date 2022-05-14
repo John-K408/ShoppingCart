@@ -6,13 +6,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.FirebaseFirestore
 import hu.ait.shoppingcart.GroupDetailsActivity
 import hu.ait.shoppingcart.GroupsActivity
+import hu.ait.shoppingcart.data.AppDatabase
 import hu.ait.shoppingcart.data.Group
+import hu.ait.shoppingcart.data.groupId
 import hu.ait.shoppingcart.databinding.GroupRowBinding
+import kotlin.concurrent.thread
 
 class groupsAdapter(var context: Context, uid: String) :
     RecyclerView.Adapter<groupsAdapter.ViewHolder>() {
+
+    var masterGroupList = mutableListOf<Group>()
+    var masterKeysList = mutableListOf<String>()
 
     var  groupList = mutableListOf<Group>()
     var  groupKeys = mutableListOf<String>()
@@ -27,26 +34,43 @@ class groupsAdapter(var context: Context, uid: String) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         var group = groupList[position]
+        var key  = groupKeys[position]
         holder.tvGroupName.text = group.groupName
-        if(currentUid != group.hostId){
-            holder.btnDelete.visibility = View.GONE
-        }
-        else{
+        if(currentUid == group.hostId){
+            holder.btnDelete.visibility = View.VISIBLE
             holder.btnDelete.setOnClickListener {
-                //Delete sub-collection (or document) from firebase
+                FirebaseFirestore.getInstance().collection(GroupsActivity.GROUPS_COLLECTION).document(
+                   key
+                ).delete()
                 removeGroupFromList(position)
-
             }
+
         }
 
         holder.btnLeave.setOnClickListener {
-            removeGroupFromList(position)
+            //set read and write capability to smth that can be enabled when user joins or adds a group.
+            //disable this capability when user leaves group
+            if(currentUid == group.hostId){
+                FirebaseFirestore.getInstance().collection(GroupsActivity.GROUPS_COLLECTION).document(
+                    key
+                ).delete()
+                removeGroupFromList(position)
+            }
+            else{
+                thread{
+                    AppDatabase.getInstance((context as GroupsActivity)).groupDao().deleteGroup(groupId(null,key))
+                }
+
+                removeGroupFromList(position)
+
+            }
+
         }
-        holder.layoutContainer.setOnClickListener{
+        holder.cvCardView.setOnClickListener{
             val intent = Intent()
             intent.setClass((context as GroupsActivity),GroupDetailsActivity::class.java)
-            intent.putExtra(GroupDetailsActivity.DOCUMENT_NAME,groupKeys[position])
-            (context as GroupDetailsActivity).startActivity(intent)
+            intent.putExtra(GroupDetailsActivity.DOCUMENT_NAME,key)
+            (context as GroupsActivity).startActivity(intent)
         }
     }
 
@@ -63,16 +87,49 @@ class groupsAdapter(var context: Context, uid: String) :
     fun addGroup(group:Group,key:String){
         groupList.add(group)
         groupKeys.add(key)
+        masterKeysList.add(key)
+        masterGroupList.add(group)
         notifyItemInserted(groupList.lastIndex)
     }
 
-    fun removePostByKey(id: String) {
+    fun filter(groupIds:MutableList<String>){
+        var keyduplicate = mutableListOf<String>()
+        keyduplicate.addAll(groupKeys)
+        val iterator = keyduplicate.iterator()
+        while(iterator.hasNext()){
+            var key = iterator.next()
+            if(!(key in groupIds)){
+                removePostByKey(key,true)
+            }
+        }
+    }
+
+    fun removePostByKey(id: String,isFilter : Boolean  = false) {
         val index = groupKeys.indexOf(id)
+
         if(index != -1){
             groupKeys.removeAt(index)
             groupList.removeAt(index)
+
             notifyItemRemoved(index)
         }
+        if(!isFilter){
+            val masterIndex = masterKeysList.indexOf(id)
+            if(masterIndex != -1){
+                masterGroupList.removeAt(masterIndex)
+                masterKeysList.removeAt(masterIndex)
+            }
+        }
+
+
+    }
+
+    fun findGroupInMaster(groupId: String):Group? {
+        var index = masterKeysList.indexOf(groupId)
+        if(index != -1){
+            return masterGroupList[index]
+        }
+        return null
     }
 
 
@@ -80,6 +137,6 @@ class groupsAdapter(var context: Context, uid: String) :
         var tvGroupName = binding.tvGroupName
         var btnDelete = binding.btnDelete
         var btnLeave = binding.btnLeave
-        var layoutContainer = binding.layoutGroup
+        var cvCardView = binding.cvCardView
     }
 }

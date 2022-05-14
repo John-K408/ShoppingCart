@@ -1,3 +1,5 @@
 package hu.ait.shoppingcart.data
 
-data class Group(var groupName: String, var hostId:String, var posts: MutableList<Post>)
+data class Group(
+    var groupName:String = ""
+    , var hostId:String = "")
