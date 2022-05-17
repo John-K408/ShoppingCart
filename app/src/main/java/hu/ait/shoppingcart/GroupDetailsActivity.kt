@@ -63,8 +63,10 @@ class GroupDetailsActivity : AppCompatActivity() {
                     if (docChange.type == DocumentChange.Type.ADDED) {
                         val post = docChange.document.toObject(Post::class.java)
                         addPost(post,docChange.document.id)
+                        //notify item added - adapter
                     } else if (docChange.type == DocumentChange.Type.REMOVED) {
                         removePostByKey(docChange.document.id)
+                        //notify item removed - adapter
                     } else if (docChange.type == DocumentChange.Type.MODIFIED) {
 
                     }

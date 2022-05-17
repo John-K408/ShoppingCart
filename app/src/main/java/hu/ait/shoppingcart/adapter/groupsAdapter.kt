@@ -42,7 +42,7 @@ class groupsAdapter(var context: Context, uid: String) :
                 FirebaseFirestore.getInstance().collection(GroupsActivity.GROUPS_COLLECTION).document(
                    key
                 ).delete()
-                removeGroupFromList(position)
+
             }
 
         }
@@ -54,7 +54,6 @@ class groupsAdapter(var context: Context, uid: String) :
                 FirebaseFirestore.getInstance().collection(GroupsActivity.GROUPS_COLLECTION).document(
                     key
                 ).delete()
-                removeGroupFromList(position)
             }
             else{
                 thread{
