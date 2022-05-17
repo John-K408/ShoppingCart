@@ -62,7 +62,7 @@ class GroupDetailsActivity : AppCompatActivity() {
                 for (docChange in querySnapshot?.getDocumentChanges()!!) {
                     if (docChange.type == DocumentChange.Type.ADDED) {
                         val post = docChange.document.toObject(Post::class.java)
-                        addPost(post,docChange.document.id)
+                        addPostToList(post,docChange.document.id)
                         //notify item added - adapter
                     } else if (docChange.type == DocumentChange.Type.REMOVED) {
                         removePostByKey(docChange.document.id)
@@ -84,7 +84,7 @@ class GroupDetailsActivity : AppCompatActivity() {
         postsKey = mutableListOf()
     }
 
-    private fun addPost(post:Post, key:String){
+    private fun addPostToList(post:Post, key:String){
         postsList.add(post)
         postsKey.add(key)
     }
